@@ -2,7 +2,18 @@
 module.exports = {
   content: ["./App.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: {
+          orange: "#F99615",
+          cyann: "#00BAC3",
+        },
+        secondary: {
+          orange: "#FFC588",
+          cyan: "#B6F0F4",
+        },
+      },
+    },
   },
   plugins: [],
 }

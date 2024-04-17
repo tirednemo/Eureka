@@ -8,12 +8,10 @@
 import React from 'react';
 import {
   SafeAreaView,
-  ScrollView,
   StatusBar,
-  useColorScheme,
-  View,
+  useColorScheme
 } from 'react-native';
-import Cat from './components/Cat';
+import Entry from './components/Entry';
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
@@ -23,12 +21,7 @@ function App(): React.JSX.Element {
   return (
     <SafeAreaView className={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        className={backgroundStyle}>
-        <View className="w-full h-10 bg-blue-300"></View>
-        <Cat color="ginger" />
-      </ScrollView>
+      <Entry />
     </SafeAreaView>
   );
 }
