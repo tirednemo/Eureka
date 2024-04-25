@@ -1,4 +1,5 @@
 import {GoogleGenerativeAI} from '@google/generative-ai';
+import {GEMINI_API_KEY} from "@env";
 import React, {PropsWithChildren, useRef, useState} from 'react';
 import {
   Image,
@@ -49,7 +50,7 @@ function UserMessage({children, content}: MessageProps): React.JSX.Element {
 }
 
 const Entry = ({modelName}: {modelName: string}) => {
-  const genAI = new GoogleGenerativeAI('API_KEY');
+  const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
   const [isDisabled, setIsDisabled] = useState(false);
   const [question, setQuestion] = useState('');
   const scrollViewRef = useRef<ScrollView | null>(null);
