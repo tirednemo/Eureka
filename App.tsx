@@ -5,24 +5,47 @@
  * @format
  */
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import {
   SafeAreaView,
   StatusBar,
-  useColorScheme
+  Text,
+  TouchableOpacity,
+  View,
+  useColorScheme,
 } from 'react-native';
-import Entry from './components/Entry';
+import ReactNativePickerModule, { PickerRef } from 'react-native-picker-module';
+import Entry from './src/components/Entry';
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = 'bg-neutral-300 dark:bg-slate-900';
+  const pickerRef = useRef<PickerRef>(null);
+  const [model, setModel] = useState('Gemini');
 
   return (
-    <SafeAreaView className={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <Entry />
-    </SafeAreaView>
+    <>
+      <SafeAreaView className="bg-white text-black dark:bg-slate-900">
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <TouchableOpacity
+          className="h-[10%] items-center justify-center shadow-lg"
+          onPress={() => pickerRef.current?.show()}>
+          <Text className="text-black text-base">Select a model: {model}</Text>
+        </TouchableOpacity>
+        <View className="h-[90%]">
+          <Entry modelName={model} />
+        </View>
+      </SafeAreaView>
+      <ReactNativePickerModule
+        ref={pickerRef}
+        value={model}
+        title={'Select a model'}
+        items={['Gemma', 'Gemini']}
+        selectedColor="#E0E0E0"
+        onValueChange={value => {
+          setModel(value);
+        }}
+      />
+    </>
   );
 }
 

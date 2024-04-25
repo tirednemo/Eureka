@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import BotImage from '../assets/images/bot.svg';
+import UserImage from '../assets/images/user.svg';
 
 type MessageProps = PropsWithChildren<{
   role: string;
@@ -18,7 +20,8 @@ type MessageProps = PropsWithChildren<{
 
 function BotMessage({children, content}: MessageProps): React.JSX.Element {
   return (
-    <View className="flex-row justify-start mt-5">
+    <View className="flex-row justify-start mt-5 mb-5 gap-2">
+      <BotImage />
       {content === '' ? (
         <View className="w-1/2 p-2 bg-white border-dashed border-2 border-red-400">
           <Text className="text-lg text-black dark:text-white">
@@ -36,15 +39,16 @@ function BotMessage({children, content}: MessageProps): React.JSX.Element {
 
 function UserMessage({children, content}: MessageProps): React.JSX.Element {
   return (
-    <View className="flex-row justify-end mt-5">
-      <View className="w-1/2 p-2 bg-white border-dashed border-2 border-primary-cyann">
+    <View className="flex-row justify-end mb-5 gap-2">
+      <View className="w-1/2 p-2 bg-white border-dashed border-2 border-primary-cyan">
         <Text className="text-lg text-black dark:text-white">{content}</Text>
       </View>
+      <UserImage />
     </View>
   );
 }
 
-const Entry = () => {
+const Entry = ({modelName}: {modelName: string}) => {
   const genAI = new GoogleGenerativeAI('API_KEY');
   const [isDisabled, setIsDisabled] = useState(false);
   const [question, setQuestion] = useState('');
@@ -68,6 +72,7 @@ const Entry = () => {
   });
 
   const sendMessage = async () => {
+    console.log('History:', JSON.stringify(messages, null, 2));
     console.log('You asked:', question);
     chat
       .sendMessage(question)
@@ -77,10 +82,6 @@ const Entry = () => {
           return;
         } else {
           console.log('Gemini replied:', response.text());
-          setMessages(prevMessages => [
-            ...prevMessages,
-            {role: 'model', parts: [{text: response.text()}]},
-          ]);
           setQuestion('');
           setIsDisabled(false);
         }
@@ -92,49 +93,43 @@ const Entry = () => {
 
   return (
     <KeyboardAvoidingView behavior="position" enabled>
-      <View className="h-screen bg-white text-lg">
+      <View className="h-full text-lg">
         <ScrollView
           ref={scrollViewRef}
           onContentSizeChange={() =>
             scrollViewRef.current?.scrollToEnd({animated: true})
           }
           contentInsetAdjustmentBehavior="automatic">
-          <View className="p-10 justify-between">
-            <View>
-              {messages
-                .slice(1)
-                .map((message, index) =>
-                  message.role === 'model' ? (
-                    <BotMessage
-                      key={index}
-                      role="model"
-                      content={message.parts[0].text}
-                    />
-                  ) : (
-                    <UserMessage
-                      key={index}
-                      role="user"
-                      content={message.parts[0].text}
-                    />
-                  ),
-                )}
-            </View>
+          <View className="p-5">
+            {messages
+              .slice(1)
+              .map((message, index) =>
+                message.role === 'model' ? (
+                  <BotMessage
+                    key={index}
+                    role="model"
+                    content={message.parts[0].text}
+                  />
+                ) : (
+                  <UserMessage
+                    key={index}
+                    role="user"
+                    content={message.parts[0].text}
+                  />
+                ),
+              )}
           </View>
         </ScrollView>
-        <View className="flex flex-row items-center justify-center gap-2 p-16 h-fit">
+        <View className="flex flex-row items-center justify-center gap-2 p-14">
           <TextInput
-            className="w-full p-2 border-dashed border-2 border-primary-cyan"
-            placeholder="Type a message..."
+            className="w-full p-2 border-dashed border-2 border-black"
+            placeholder="Ask something..."
             defaultValue={question}
             onChangeText={newText => setQuestion(newText)}
             editable={!isDisabled}
           />
           <TouchableOpacity
             onPress={() => {
-              setMessages(prevMessages => [
-                ...prevMessages,
-                {role: 'user', parts: [{text: question}]},
-              ]);
               setIsDisabled(true);
               sendMessage();
             }}
