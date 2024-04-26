@@ -24,11 +24,11 @@ function BotMessage({content, error}: MessageType): React.JSX.Element {
     <View className="flex-row justify-start mt-5 mb-5 gap-2">
       <BotImage />
       {error ? (
-        <View className="w-1/2 p-2 bg-white border-dashed border-2 border-red-400">
+        <View className="w-2/3 p-2 bg-white border-dashed border-2 border-red-400">
           <Text className="text-lg text-black dark:text-white">{error}</Text>
         </View>
       ) : (
-        <View className="w-1/2 p-2 bg-white border-dashed border-2 border-primary-orange">
+        <View className="w-2/3 p-2 bg-white border-dashed border-2 border-primary-orange">
           <Text className="text-lg text-black dark:text-white">{content}</Text>
         </View>
       )}
@@ -39,7 +39,7 @@ function BotMessage({content, error}: MessageType): React.JSX.Element {
 function UserMessage({content}: MessageType): React.JSX.Element {
   return (
     <View className="flex-row justify-end mb-5 gap-2">
-      <View className="w-1/2 p-2 bg-white border-dashed border-2 border-primary-cyan">
+      <View className="w-2/3 p-2 bg-white border-dashed border-2 border-primary-cyan">
         <Text className="text-lg text-black dark:text-white">{content}</Text>
       </View>
       <UserImage />
