@@ -1,6 +1,4 @@
-import {GEMINI_API_KEY} from '@env';
-import {GoogleGenerativeAI} from '@google/generative-ai';
-import React, {PropsWithChildren, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {
   Image,
   KeyboardAvoidingView,
@@ -10,6 +8,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import {ChatHistoryType} from '../../App';
+import {askGemini, askGemma} from '../actions/api';
 import BotImage from '../assets/images/bot.svg';
 import UserImage from '../assets/images/user.svg';
 
@@ -18,13 +18,6 @@ type MessageType = {
   content: string;
   error?: string;
 };
-
-type ChatHistoryType = {
-  role: string;
-  parts: {
-    text: string;
-  }[];
-}[];
 
 function BotMessage({content, error}: MessageType): React.JSX.Element {
   return (
@@ -54,11 +47,16 @@ function UserMessage({content}: MessageType): React.JSX.Element {
   );
 }
 
-const Entry = ({modelName}: {modelName: string}) => {
-  const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+type EntryProps = {
+  modelName: string;
+  chatHistory: ChatHistoryType;
+  setChatHistory: React.Dispatch<React.SetStateAction<ChatHistoryType>>;
+};
+
+const Entry = ({modelName, chatHistory, setChatHistory}: EntryProps) => {
   const [question, setQuestion] = useState('');
   const [error, setError] = useState('');
-  const [chatHistory, setChatHistory] = useState<ChatHistoryType>([]);
+
   const [isDisabled, setIsDisabled] = useState(false);
   const scrollViewRef = useRef<ScrollView | null>(null);
 
@@ -66,18 +64,12 @@ const Entry = ({modelName}: {modelName: string}) => {
     try {
       // console.log('History:', JSON.stringify(chatHistory, null, 2));
       // console.log('You asked:', question);
+      const answer =
+        modelName === 'Gemini'
+          ? await askGemini({query: question, history: chatHistory})
+          : await askGemma({query: question});
 
-      const model = genAI.getGenerativeModel({model: 'gemini-pro'});
-
-      const chat = model.startChat({
-        history: chatHistory,
-      });
-
-      const result = await chat.sendMessage(question);
-      const response = result.response;
-      const answer = response.text();
       // console.log('Gemini replied:', answer);
-
       setChatHistory(oldChatHistory => [
         ...oldChatHistory,
         {
@@ -89,7 +81,7 @@ const Entry = ({modelName}: {modelName: string}) => {
       setIsDisabled(false);
     } catch (error) {
       console.error(error);
-      setError('Please try again. Gemini is acting up.');
+      setError('Please try again.');
     }
   };
 

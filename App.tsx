@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, { useRef, useState } from 'react';
+import React, {useRef, useState} from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -14,13 +14,21 @@ import {
   View,
   useColorScheme,
 } from 'react-native';
-import ReactNativePickerModule, { PickerRef } from 'react-native-picker-module';
+import ReactNativePickerModule, {PickerRef} from 'react-native-picker-module';
 import Entry from './src/components/Entry';
+
+export type ChatHistoryType = {
+  role: string;
+  parts: {
+    text: string;
+  }[];
+}[];
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   const pickerRef = useRef<PickerRef>(null);
   const [model, setModel] = useState('Gemini');
+  const [chatHistory, setChatHistory] = useState<ChatHistoryType>([]);
 
   return (
     <>
@@ -32,7 +40,11 @@ function App(): React.JSX.Element {
           <Text className="text-black text-base">Select a model: {model}</Text>
         </TouchableOpacity>
         <View className="h-[90%]">
-          <Entry modelName={model} />
+          <Entry
+            modelName={model}
+            chatHistory={chatHistory}
+            setChatHistory={setChatHistory}
+          />
         </View>
       </SafeAreaView>
       <ReactNativePickerModule
@@ -42,6 +54,7 @@ function App(): React.JSX.Element {
         items={['Gemma', 'Gemini']}
         selectedColor="#E0E0E0"
         onValueChange={value => {
+          setChatHistory([]);
           setModel(value);
         }}
       />
