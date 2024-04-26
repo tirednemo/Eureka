@@ -1,5 +1,5 @@
+import {GEMINI_API_KEY} from '@env';
 import {GoogleGenerativeAI} from '@google/generative-ai';
-import {GEMINI_API_KEY} from "@env";
 import React, {PropsWithChildren, useRef, useState} from 'react';
 import {
   Image,
@@ -13,21 +13,26 @@ import {
 import BotImage from '../assets/images/bot.svg';
 import UserImage from '../assets/images/user.svg';
 
-type MessageProps = PropsWithChildren<{
+type MessageType = {
   role: string;
   content: string;
-  // timestamp: string;
-}>;
+  error?: string;
+};
 
-function BotMessage({children, content}: MessageProps): React.JSX.Element {
+type ChatHistoryType = {
+  role: string;
+  parts: {
+    text: string;
+  }[];
+}[];
+
+function BotMessage({content, error}: MessageType): React.JSX.Element {
   return (
     <View className="flex-row justify-start mt-5 mb-5 gap-2">
       <BotImage />
-      {content === '' ? (
+      {error ? (
         <View className="w-1/2 p-2 bg-white border-dashed border-2 border-red-400">
-          <Text className="text-lg text-black dark:text-white">
-            Please try again. Gemini is acting up.
-          </Text>
+          <Text className="text-lg text-black dark:text-white">{error}</Text>
         </View>
       ) : (
         <View className="w-1/2 p-2 bg-white border-dashed border-2 border-primary-orange">
@@ -38,7 +43,7 @@ function BotMessage({children, content}: MessageProps): React.JSX.Element {
   );
 }
 
-function UserMessage({children, content}: MessageProps): React.JSX.Element {
+function UserMessage({content}: MessageType): React.JSX.Element {
   return (
     <View className="flex-row justify-end mb-5 gap-2">
       <View className="w-1/2 p-2 bg-white border-dashed border-2 border-primary-cyan">
@@ -51,45 +56,41 @@ function UserMessage({children, content}: MessageProps): React.JSX.Element {
 
 const Entry = ({modelName}: {modelName: string}) => {
   const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-  const [isDisabled, setIsDisabled] = useState(false);
   const [question, setQuestion] = useState('');
+  const [error, setError] = useState('');
+  const [chatHistory, setChatHistory] = useState<ChatHistoryType>([]);
+  const [isDisabled, setIsDisabled] = useState(false);
   const scrollViewRef = useRef<ScrollView | null>(null);
-  const [messages, setMessages] = useState([
-    {
-      role: 'user',
-      parts: [{text: 'Hello.'}],
-    },
-    {
-      role: 'model',
-      parts: [{text: 'Hi! What would you like to know?'}],
-    },
-  ]);
-  const model = genAI.getGenerativeModel({model: 'gemini-pro'});
-  const chat = model.startChat({
-    history: messages,
-    generationConfig: {
-      maxOutputTokens: 100,
-    },
-  });
 
-  const sendMessage = async () => {
-    console.log('History:', JSON.stringify(messages, null, 2));
-    console.log('You asked:', question);
-    chat
-      .sendMessage(question)
-      .then(result => {
-        const response = result.response;
-        if (response === null) {
-          return;
-        } else {
-          console.log('Gemini replied:', response.text());
-          setQuestion('');
-          setIsDisabled(false);
-        }
-      })
-      .catch(error => {
-        console.error(error);
+  const askQuestion = async () => {
+    try {
+      // console.log('History:', JSON.stringify(chatHistory, null, 2));
+      // console.log('You asked:', question);
+
+      const model = genAI.getGenerativeModel({model: 'gemini-pro'});
+
+      const chat = model.startChat({
+        history: chatHistory,
       });
+
+      const result = await chat.sendMessage(question);
+      const response = result.response;
+      const answer = response.text();
+      // console.log('Gemini replied:', answer);
+
+      setChatHistory(oldChatHistory => [
+        ...oldChatHistory,
+        {
+          role: 'model',
+          parts: [{text: answer}],
+        },
+      ]);
+      setQuestion('');
+      setIsDisabled(false);
+    } catch (error) {
+      console.error(error);
+      setError('Please try again. Gemini is acting up.');
+    }
   };
 
   return (
@@ -102,28 +103,30 @@ const Entry = ({modelName}: {modelName: string}) => {
           }
           contentInsetAdjustmentBehavior="automatic">
           <View className="p-5">
-            {messages
-              .slice(1)
-              .map((message, index) =>
-                message.role === 'model' ? (
-                  <BotMessage
-                    key={index}
-                    role="model"
-                    content={message.parts[0].text}
-                  />
-                ) : (
-                  <UserMessage
-                    key={index}
-                    role="user"
-                    content={message.parts[0].text}
-                  />
-                ),
-              )}
+            <BotMessage role="model" content={'Hi! Ask me anything!'} />
+            {chatHistory.map((message, index) =>
+              message.role === 'model' ? (
+                <BotMessage
+                  key={index}
+                  role="model"
+                  content={message.parts[0].text}
+                  error={error}
+                />
+              ) : (
+                <UserMessage
+                  key={index}
+                  role="user"
+                  content={message.parts[0].text}
+                />
+              ),
+            )}
           </View>
         </ScrollView>
         <View className="flex flex-row items-center justify-center gap-2 p-14">
           <TextInput
-            className="w-full p-2 border-dashed border-2 border-black"
+            className={`w-full p-2 border-dashed border-2 ${
+              isDisabled ? 'border-gray-300' : 'border-black'
+            }`}
             placeholder="Ask something..."
             defaultValue={question}
             onChangeText={newText => setQuestion(newText)}
@@ -131,13 +134,20 @@ const Entry = ({modelName}: {modelName: string}) => {
           />
           <TouchableOpacity
             onPress={() => {
+              setChatHistory(oldChatHistory => [
+                ...oldChatHistory,
+                {
+                  role: 'user',
+                  parts: [{text: question}],
+                },
+              ]);
               setIsDisabled(true);
-              sendMessage();
+              askQuestion();
             }}
             disabled={isDisabled}>
             <Image
               src="https://img.icons8.com/ios/50/sent--v1.png"
-              className="w-8 h-8"
+              className={`w-8 h-8 ${isDisabled && 'opacity-30'}`}
             />
           </TouchableOpacity>
         </View>
