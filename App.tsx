@@ -32,12 +32,12 @@ function App(): React.JSX.Element {
 
   return (
     <>
-      <SafeAreaView className="bg-white text-black dark:bg-slate-900">
+      <SafeAreaView className="bg-white text-black dark:bg-black dark:text-white">
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <TouchableOpacity
           className="h-[10%] items-center justify-center shadow-lg"
           onPress={() => pickerRef.current?.show()}>
-          <Text className="text-black text-base">Select a model: {model}</Text>
+          <Text className="text-black dark:text-white text-base">Select a model: {model}</Text>
         </TouchableOpacity>
         <View className="h-[90%]">
           <Entry
@@ -53,6 +53,7 @@ function App(): React.JSX.Element {
         title={'Select a model'}
         items={['Gemma', 'Gemini']}
         selectedColor="#E0E0E0"
+        tintColor="#000000"
         onValueChange={value => {
           setChatHistory([]);
           setModel(value);

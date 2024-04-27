@@ -8,7 +8,7 @@ export const askGemini = async ({
   history: ChatHistoryType;
 }) => {
   const response = await fetch(
-    'https://7e2f-35-204-208-209.ngrok-free.app/gemini',
+    'https://118a-35-247-26-17.ngrok-free.app/gemini',
     {
       method: 'POST',
       headers: {
@@ -26,7 +26,7 @@ export const askGemini = async ({
 
 export const askGemma = async ({query}: {query: string}) => {
   const response = await fetch(
-    'https://7e2f-35-204-208-209.ngrok-free.app/gemma',
+    'https://118a-35-247-26-17.ngrok-free.app/gemma',
     {
       method: 'POST',
       headers: {

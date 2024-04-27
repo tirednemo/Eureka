@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from 'react-native';
 import {ChatHistoryType} from '../../App';
 import {askGemini, askGemma} from '../actions/api';
@@ -24,11 +25,11 @@ function BotMessage({content, error}: MessageType): React.JSX.Element {
     <View className="flex-row justify-start mt-5 mb-5 gap-2">
       <BotImage />
       {error ? (
-        <View className="w-2/3 p-2 bg-white border-dashed border-2 border-red-400">
+        <View className="w-2/3 p-2 bg-white dark:bg-black border-dashed border-2 border-red-400">
           <Text className="text-lg text-black dark:text-white">{error}</Text>
         </View>
       ) : (
-        <View className="w-2/3 p-2 bg-white border-dashed border-2 border-primary-orange">
+        <View className="w-2/3 p-2 bg-white dark:bg-black border-dashed border-2 border-primary-orange">
           <Text className="text-lg text-black dark:text-white">{content}</Text>
         </View>
       )}
@@ -39,7 +40,7 @@ function BotMessage({content, error}: MessageType): React.JSX.Element {
 function UserMessage({content}: MessageType): React.JSX.Element {
   return (
     <View className="flex-row justify-end mb-5 gap-2">
-      <View className="w-2/3 p-2 bg-white border-dashed border-2 border-primary-cyan">
+      <View className="w-2/3 p-2 bg-white dark:bg-black border-dashed border-2 border-primary-cyan">
         <Text className="text-lg text-black dark:text-white">{content}</Text>
       </View>
       <UserImage />
@@ -116,8 +117,8 @@ const Entry = ({modelName, chatHistory, setChatHistory}: EntryProps) => {
         </ScrollView>
         <View className="flex flex-row items-center justify-center gap-2 p-14">
           <TextInput
-            className={`w-full p-2 border-dashed border-2 ${
-              isDisabled ? 'border-gray-300' : 'border-black'
+            className={`w-full p-2 border-dashed border-2 text-black placeholder-black dark:text-white dark:placeholder-white ${
+              isDisabled ? 'border-gray-300' : 'border-black dark:border-white'
             }`}
             placeholder="Ask something..."
             defaultValue={question}
@@ -138,7 +139,11 @@ const Entry = ({modelName, chatHistory, setChatHistory}: EntryProps) => {
             }}
             disabled={isDisabled}>
             <Image
-              src="https://img.icons8.com/ios/50/sent--v1.png"
+              src={`${
+                useColorScheme() === 'dark'
+                  ? 'https://img.icons8.com/ios/50/FFFFFF/sent--v1.png'
+                  : 'https://img.icons8.com/ios/50/000000/sent--v1.png'
+              }`}
               className={`w-8 h-8 ${isDisabled && 'opacity-30'}`}
             />
           </TouchableOpacity>
