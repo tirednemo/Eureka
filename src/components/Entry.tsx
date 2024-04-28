@@ -82,7 +82,7 @@ const Entry = ({modelName, chatHistory, setChatHistory}: EntryProps) => {
       setIsDisabled(false);
     } catch (error) {
       console.error(error);
-      setError('Please try again.');
+      setError(`Please try again. ${modelName} is acting up.`);
     }
   };
 
@@ -96,7 +96,7 @@ const Entry = ({modelName, chatHistory, setChatHistory}: EntryProps) => {
           }
           contentInsetAdjustmentBehavior="automatic">
           <View className="p-5">
-            <BotMessage role="model" content={'Hi! Ask me anything!'} />
+            <BotMessage role="model" content={'Hi! I am Eureka.'} />
             {chatHistory.map((message, index) =>
               message.role === 'model' ? (
                 <BotMessage
