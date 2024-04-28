@@ -8,7 +8,7 @@ export const askGemini = async ({
   history: ChatHistoryType;
 }) => {
   const response = await fetch(
-    'https://lynx-relaxed-similarly.ngrok.free.app/gemini',
+    'https://lynx-relaxed-similarly.ngrok-free.app/gemini',
     {
       method: 'POST',
       headers: {
@@ -26,7 +26,7 @@ export const askGemini = async ({
 
 export const askGemma = async ({query}: {query: string}) => {
   const response = await fetch(
-    'https://lynx-relaxed-similarly.ngrok.free.app/gemma',
+    'https://lynx-relaxed-similarly.ngrok-free.app/gemma',
     {
       method: 'POST',
       headers: {
