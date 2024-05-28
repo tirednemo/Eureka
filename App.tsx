@@ -51,7 +51,7 @@ function App(): React.JSX.Element {
         ref={pickerRef}
         value={model}
         title={'Select a model'}
-        items={['Gemma', 'Gemini']}
+        items={['Gemma - Tuned', 'Gemma - RAG', 'Gemini', 'Gemini (Tuned)', 'Gemini (RAG)']}
         selectedColor="#E0E0E0"
         tintColor="#000000"
         onValueChange={value => {

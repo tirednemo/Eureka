@@ -10,7 +10,7 @@ import {
   useColorScheme,
 } from 'react-native';
 import {ChatHistoryType} from '../../App';
-import {askGemini, askGemma} from '../actions/api';
+import {askGemini, askRagGemini, askRagGemma, askTunedGemini, askTunedGemma} from '../actions/api';
 import BotImage from '../assets/images/bot.svg';
 import UserImage from '../assets/images/user.svg';
 
@@ -66,9 +66,15 @@ const Entry = ({modelName, chatHistory, setChatHistory}: EntryProps) => {
       // console.log('History:', JSON.stringify(chatHistory, null, 2));
       // console.log('You asked:', question);
       const answer =
-        modelName === 'Gemini'
-          ? await askGemini({query: question, history: chatHistory})
-          : await askGemma({query: question});
+        modelName === 'Gemma - Tuned'
+          ? await askTunedGemma({query: question})
+          : modelName === 'Gemma - RAG'
+          ? await askRagGemma({query: question})
+          : modelName === 'Gemini - Tuned'
+          ? await askTunedGemini({query: question, history: chatHistory})
+          : modelName === 'Gemini - RAG'
+          ? await askRagGemini({query: question, history: chatHistory})
+          : await askGemini({query: question, history: chatHistory});
 
       // console.log('Gemini replied:', answer);
       setChatHistory(oldChatHistory => [
